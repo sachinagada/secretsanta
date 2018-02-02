@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/sachinagada/Secret_Santa/internal"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	internal.AssignPeople()
 }
