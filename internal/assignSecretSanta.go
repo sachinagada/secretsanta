@@ -59,6 +59,14 @@ func HashingTest(names []string) {
 	for i := 0; i < len(names); i++ {
 		h.Write([]byte(names[i]))
 		secretSantaIndex := int(h.Sum32()) % len(names)
+
+		//this will get stuck in an infinite loop if the only open spot is the currentIndex (will be the case for the last name)
+		for i == secretSantaIndex || secretSantaList[secretSantaIndex] != "" {
+			fmt.Println("collision")
+			if i == len(names)-1 {
+				//todo: switch the current name with the name on the 0th index
+			}
+		}
 		fmt.Println(names[i], secretSantaIndex)
 
 	}
