@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"hash/fnv"
 	"math/rand"
 )
 
@@ -48,4 +49,18 @@ func finalAssign(assign []string) []string {
 
 	//TODO: add the logic for changing the positions of the people who have themselves as their secret santa
 	return assign
+}
+
+//HashingTest is testing to see if I can hash and assign Secret Santas that way instead of random number
+func HashingTest(names []string) {
+	secretSantaList := make([]string, len(names))
+	h := fnv.New32a()
+
+	for i := 0; i < len(names); i++ {
+		h.Write([]byte(names[i]))
+		secretSantaIndex := int(h.Sum32()) % len(names)
+		fmt.Println(names[i], secretSantaIndex)
+
+	}
+	fmt.Println(secretSantaList)
 }

@@ -5,5 +5,8 @@ import (
 )
 
 func main() {
-	internal.AssignPeople()
+	// internal.AssignPeople()
+	var names = []string{"Sam", "Pam", "Michelle", "Sarah"}
+
+	internal.HashingTest(names)
 }
