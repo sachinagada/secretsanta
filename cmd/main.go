@@ -1,12 +1,13 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/sachinagada/Secret_Santa/internal"
 )
 
 func main() {
-	// internal.AssignPeople()
-	var names = []string{"Sam", "Pam", "Michelle", "Sarah"}
+	var names = []string{"Sarah", "Pam", "Lam", "Bam", "Tam", "Michelle", "Michelle "}
 
-	internal.HashingTest(names)
+	fmt.Println(internal.HashingTest(names))
 }

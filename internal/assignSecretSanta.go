@@ -1,74 +1,33 @@
 package internal
 
 import (
-	"fmt"
 	"hash/fnv"
-	"math/rand"
 )
 
-var names = []string{"Sam", "Pam", "Michelle", "Sarah"}
-
-//AssignPeople tries to assign a secret santa to each person
-func AssignPeople() {
-	assigned := make([]string, len(names))
-
-	//TODO: compare the assigned slice with the names slice and if any of the names are the same, mix them up -- they are their own secret santas
-
-	for _, name := range names {
-		index := getRandomNumber(len(names))
-		for assigned[index] != "" { //keep randomly generating numbers until a free spot in assigned is found
-			fmt.Println("index", index)
-			index = getRandomNumber(len(names))
-		}
-		assigned[index] = name
-
-		fmt.Println(assigned)
-
-	}
-}
-
-func getRandomNumber(n int) int {
-
-	//TODO: look into seeding new sources for random generators:
-	/* s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)*/
-
-	i := rand.Intn(n * 77)
-	fmt.Println("random number", i)
-	return i % n
-}
-
-func finalAssign(assign []string) []string {
-	changeNames := []string{}
-
-	for i, v := range names {
-		if assign[i] == v {
-			changeNames = append(changeNames, v)
-		}
-	}
-
-	//TODO: add the logic for changing the positions of the people who have themselves as their secret santa
-	return assign
-}
-
 //HashingTest is testing to see if I can hash and assign Secret Santas that way instead of random number
-func HashingTest(names []string) {
-	secretSantaList := make([]string, len(names))
+func HashingTest(names []string) (secretSantaList []string) {
+	secretSantaList = make([]string, len(names))
 	h := fnv.New32a()
 
 	for i := 0; i < len(names); i++ {
+		currentName := names[i]
 		h.Write([]byte(names[i]))
-		secretSantaIndex := int(h.Sum32()) % len(names)
+		secretSantaIndex := int(h.Sum32()) % len(names) //hash the name and get the index to assign to the secret santa
 
-		//this will get stuck in an infinite loop if the only open spot is the currentIndex (will be the case for the last name)
+		//don't want the current person to be their own secret santa
 		for i == secretSantaIndex || secretSantaList[secretSantaIndex] != "" {
-			fmt.Println("collision")
-			if i == len(names)-1 {
-				//todo: switch the current name with the name on the 0th index
-			}
-		}
-		fmt.Println(names[i], secretSantaIndex)
 
+			//if it's the last name in the array and the only available space is the last space,
+			//put the currentName in the 0th index and the one at 0th index in the current position.
+			//Otherwise, this would be stuck in an infinite for loop
+			if i == len(names)-1 && i == secretSantaIndex && secretSantaList[secretSantaIndex] == "" {
+				secretSantaList[0], secretSantaList[i] = currentName, secretSantaList[0]
+				return
+			}
+			//use linear probing to just place it in the next available position
+			secretSantaIndex = (secretSantaIndex + 1) % len(names)
+		}
+		secretSantaList[secretSantaIndex] = currentName
 	}
-	fmt.Println(secretSantaList)
+	return
 }
