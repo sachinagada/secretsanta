@@ -1,16 +1,22 @@
 package internal
 
 import (
+	"errors"
 	"hash/fnv"
 )
 
-//HashingTest is testing to see if I can hash and assign Secret Santas that way instead of random number
-func HashingTest(names []string) (secretSantaList []string) {
+//AssignSecretSanta uses hashing algorithm to hash each name and assign it to the person in the hash value % len(names) position.
+//If a name is already at that position, it will use linear probing method to put in the next available position. This function
+//uses the same concepts as a hash map to hash the key (name in this case) to assign the key to a location.
+func AssignSecretSanta(names []string) (secretSantaList []string, err error) {
+	if len(names) < 2 {
+		return nil, errors.New("Need more than 1 participant")
+	}
+
 	secretSantaList = make([]string, len(names))
 	h := fnv.New32a()
 
-	for i := 0; i < len(names); i++ {
-		currentName := names[i]
+	for i, currentName := range names {
 		h.Write([]byte(names[i]))
 		secretSantaIndex := int(h.Sum32()) % len(names) //hash the name and get the index to assign to the secret santa
 
@@ -24,7 +30,7 @@ func HashingTest(names []string) (secretSantaList []string) {
 				secretSantaList[0], secretSantaList[i] = currentName, secretSantaList[0]
 				return
 			}
-			//use linear probing to just place it in the next available position
+			//use linear probing to place the name in the next available position
 			secretSantaIndex = (secretSantaIndex + 1) % len(names)
 		}
 		secretSantaList[secretSantaIndex] = currentName
