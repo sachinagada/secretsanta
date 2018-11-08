@@ -7,7 +7,9 @@ import (
 )
 
 func main() {
-	var names = []string{"Sarah", "Pam", "Lam", "Bam", "Tam", "Michelle", "Michelle "}
+	var names = []string{"Sarah", "Pam", "Lam", "Bam", "Tam", "Michelle"}
+	secretSanta, err := internal.AssignSecretSanta(names)
+	fmt.Println("assigned Secret Santas:", secretSanta)
+	fmt.Println("err", err)
 
-	fmt.Println(internal.HashingTest(names))
 }
