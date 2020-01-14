@@ -1,4 +1,4 @@
-module personalProjects/Secret_Santa
+module personalProjects/secretsanta
 
 go 1.13
 

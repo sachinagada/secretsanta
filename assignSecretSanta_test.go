@@ -1,4 +1,4 @@
-package internal
+package secretsanta
 
 import (
 	"fmt"
