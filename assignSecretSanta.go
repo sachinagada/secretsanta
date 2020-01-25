@@ -5,40 +5,51 @@ import (
 	"math/rand"
 )
 
-// SimpleAssign assigns secret santas by using the Fisher–Yates shuffle algorithm.
-// It will shuffle the participants around and the participants in the two arrays
-// at the same index are the assigned secret santas. It also validates that the
-// same person hasn't been assigned to themselves as the secret
-// santa. If they have, then swap with the participant next to them
-func SimpleAssign(emails []string) (map[string]string, error) {
+// PickSecretSanta takes a list of emails and returns a map[string]string with
+// the assigned secret santa
+func PickSecretSanta(emails []string) (map[string]string, error) {
 	if len(emails) < 2 {
 		return nil, fmt.Errorf("Cannot have less than 2 participants")
 	}
 
-	// copy the array so we can compare with the original and know which
-	// participant is mapped to whom
-	assigned := make([]string, len(emails))
+	assigned := shuffle(emails)
+
+	secretSantas := assign(emails, assigned)
+	return secretSantas, nil
+}
+
+// assign takes a list of the input emails and the shuffled emails and
+// assigns the secret santa to individuals and ensures that no one has themselves
+// as their own secret santa. The returned map's key will be the person receiving
+// the email and the value is their assigned secret santa
+func assign(emails, assigned []string) map[string]string {
 	assignedMap := make(map[string]string, len(emails))
-	for i, email := range emails {
-		assigned[i] = email
-	}
-
-	// shuffle the participants and the participants in the same index will
-	// be the assigned receiver
-	rand.Shuffle(len(assigned), func(i, j int) {
-		assigned[i], assigned[j] = assigned[j], assigned[i]
-	})
-
 	for i := 0; i < len(emails); i++ {
 		// if the person is their own secret santa, switch with the
 		// next participant
 		if emails[i] == assigned[i] {
 			nextIndex := (i + 1) % len(assigned)
+			// ensure you assign the next index to the current because i could
+			// be the last index
+			assignedMap[emails[nextIndex]] = assigned[i]
 			assigned[i], assigned[nextIndex] = assigned[nextIndex], assigned[i]
 		}
-
 		assignedMap[emails[i]] = assigned[i]
 	}
 
-	return assignedMap, nil
+	return assignedMap
+}
+
+// shuffle takes a list of emails and shuffles them using the Fisher-Yates
+// algorithm
+func shuffle(emails []string) []string {
+	// rand.Shuffle mutates the same slice so make a copy to maintain the order
+	// of the original email slice
+	assigned := make([]string, len(emails))
+	copy(assigned, emails)
+
+	rand.Shuffle(len(assigned), func(i, j int) {
+		assigned[i], assigned[j] = assigned[j], assigned[i]
+	})
+	return assigned
 }
