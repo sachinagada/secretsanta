@@ -2,7 +2,8 @@ package secretsanta
 
 import (
 	"fmt"
-	"math/rand"
+
+	"github.com/sachinagada/secretsanta/randshuffle"
 )
 
 // PickSecretSanta takes a list of emails and returns a map[string]string with
@@ -12,7 +13,8 @@ func PickSecretSanta(emails []string) (map[string]string, error) {
 		return nil, fmt.Errorf("Cannot have less than 2 participants")
 	}
 
-	assigned := shuffle(emails)
+	r := &randshuffle.RandShuffle{}
+	assigned := r.Shuffle(emails)
 
 	secretSantas := assign(emails, assigned)
 	return secretSantas, nil
@@ -38,18 +40,4 @@ func assign(emails, assigned []string) map[string]string {
 	}
 
 	return assignedMap
-}
-
-// shuffle takes a list of emails and shuffles them using the Fisher-Yates
-// algorithm
-func shuffle(emails []string) []string {
-	// rand.Shuffle mutates the same slice so make a copy to maintain the order
-	// of the original email slice
-	assigned := make([]string, len(emails))
-	copy(assigned, emails)
-
-	rand.Shuffle(len(assigned), func(i, j int) {
-		assigned[i], assigned[j] = assigned[j], assigned[i]
-	})
-	return assigned
 }
