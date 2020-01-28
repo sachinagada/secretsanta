@@ -32,11 +32,15 @@ func TestAssing(t *testing.T) {
 
 	for _, tc := range testcases {
 		tc := tc
-		assigned := assign(tc.original, tc.shuffled)
-		require.Equal(t, len(tc.original), len(assigned))
-
-		for k, v := range assigned {
-			assert.NotEqual(t, k, v)
-		}
+		t.Run(tc.descripton, func(t *testing.T){
+			t.Parallel()
+			assigned := assign(tc.original, tc.shuffled)
+			require.Equal(t, len(tc.original), len(assigned))
+	
+			// ensure no one is their own secret santa
+			for k, v := range assigned {
+				assert.NotEqual(t, k, v)
+			}
+		})
 	}
 }
