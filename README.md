@@ -2,7 +2,7 @@
 
 Secret_Santa requires go 1.8 or later
 
-`go get -u github.com/sachinagada/Secret_Santa`
+`go get -u github.com/sachinagada/secretsanta`
 
 ## Usage
 
@@ -13,7 +13,7 @@ After cloning the project, go to the resources directory and change the username
   cd Path/to/Secret_Santa/cmd
   go run main.go
   ```
- Go to the following [link](http://localhost:8090/secretSanta) to bring up the
+ Go to the following [link](http://localhost:8090/secretsanta) to bring up the
  front end of the application. In the forms, insert the name and the
  corresponding email address and hit the submit button when done. The application will randomly assign the Secret Santa to each name and email everyone their paired match. It will make sure that no one gets themselves as their Secret Santa.
 
@@ -22,4 +22,4 @@ This application makes it easier for friends and family to continue the traditio
 
 ### Personal Purpose
 
-I am using this application to try out angular2 front end with a go application. I also wanted to learn docker and how to containerize an app so using this application as a means of learning this technology.
+I am using this application to try develop my front-end skills while practicing my backend skills. The goal is to learn a front end framework and containerizing the whole application with docker and using kubernetes and GCP to expose the service.
