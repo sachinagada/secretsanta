@@ -1,3 +1,5 @@
+![Go](https://github.com/sachinagada/secretsanta/workflows/Go/badge.svg)
+
 ## Installation:
 
 Secret_Santa requires go 1.8 or later
