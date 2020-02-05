@@ -29,8 +29,8 @@ jobs:
 
     - name: Lint
       run: |
-      go install golang.org/x/lint/golint
-      golint ./...
+        go install golang.org/x/lint/golint
+        golint ./...
 
     - name: Test
       run: go test -mod=readonly ./...
