@@ -2,41 +2,48 @@ package secretsanta
 
 import (
 	"fmt"
-
-	"github.com/sachinagada/secretsanta/randshuffle"
 )
 
-// PickSecretSanta takes a list of emails and returns a map[string]string with
-// the assigned secret santa
-func PickSecretSanta(emails []string) (map[string]string, error) {
-	if len(emails) < 2 {
-		return nil, fmt.Errorf("Cannot have less than 2 participants")
+// Shuffler shuffles the slice of participants which will be the receivers
+// for secret santa
+type Shuffler interface {
+	Shuffle([]string)
+}
+
+// PickSecretSanta takes a list of emails and returns a map where the key is
+// the secret santa and the value is the person receiving the gift
+func PickSecretSanta(emails []string, s Shuffler) (map[string]string, error) {
+	if len(emails) < 3 {
+		return nil, fmt.Errorf("received %d participants; cannot have fewer than 3 participants", len(emails))
 	}
 
-	r := &randshuffle.RandShuffle{}
-	assigned := r.Shuffle(emails)
+	receivers := make([]string, len(emails))
+	copy(receivers, emails)
 
-	secretSantas := assign(emails, assigned)
-	return secretSantas, nil
+	s.Shuffle(receivers)
+
+	assigned := assign(emails, receivers)
+	return assigned, nil
 }
 
 // assign takes a list of the input emails and the shuffled emails and
-// assigns the secret santa to individuals and ensures that no one has themselves
-// as their own secret santa. The returned map's key will be the person receiving
-// the email and the value is their assigned secret santa
-func assign(emails, assigned []string) map[string]string {
-	assignedMap := make(map[string]string, len(emails))
-	for i := 0; i < len(emails); i++ {
+// assigns the secret santa to individuals. The returned map's key will be the
+// person receiving the email (Secret Santa) and the value is the email of the
+// individual receiving the gift.
+func assign(santa, receiver []string) map[string]string {
+	assignedMap := make(map[string]string, len(santa))
+	for i := 0; i < len(santa); i++ {
 		// if the person is their own secret santa, switch with the
 		// next participant
-		if emails[i] == assigned[i] {
-			nextIndex := (i + 1) % len(assigned)
-			// ensure you assign the next index to the current because i could
-			// be the last index
-			assignedMap[emails[nextIndex]] = assigned[i]
-			assigned[i], assigned[nextIndex] = assigned[nextIndex], assigned[i]
+		if santa[i] == receiver[i] {
+			nextIndex := (i + 1) % len(receiver)
+
+			receiver[i], receiver[nextIndex] = receiver[nextIndex], receiver[i]
+			// i could be the last index so update the assigned map for index 0
+			assignedMap[santa[nextIndex]] = receiver[nextIndex]
+
 		}
-		assignedMap[emails[i]] = assigned[i]
+		assignedMap[santa[i]] = receiver[i]
 	}
 
 	return assignedMap

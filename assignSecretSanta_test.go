@@ -2,9 +2,6 @@ package secretsanta
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestAssing(t *testing.T) {
@@ -14,32 +11,46 @@ func TestAssing(t *testing.T) {
 		shuffled   []string
 	}{
 		{
-			descripton: "Perfectly shuffled",
+			descripton: "already_shuffled",
 			original:   []string{"a", "b", "c"},
 			shuffled:   []string{"b", "c", "a"},
 		},
 		{
-			descripton: "Partially shuffled",
+			descripton: "partially_shuffled",
 			original:   []string{"a", "b", "c", "d"},
 			shuffled:   []string{"b", "a", "c", "d"},
 		},
 		{
-			descripton: "Unshuffled last index",
+			descripton: "unshuffled_last_index",
 			original:   []string{"a", "b", "c", "d"},
 			shuffled:   []string{"c", "a", "b", "d"},
+		},
+		{
+			descripton: "completely unshuffled",
+			original:   []string{"a", "b", "c", "d"},
+			shuffled:   []string{"a", "b", "c", "d"},
 		},
 	}
 
 	for _, tc := range testcases {
 		tc := tc
-		t.Run(tc.descripton, func(t *testing.T){
+		t.Run(tc.descripton, func(t *testing.T) {
 			t.Parallel()
 			assigned := assign(tc.original, tc.shuffled)
-			require.Equal(t, len(tc.original), len(assigned))
-	
-			// ensure no one is their own secret santa
+			if len(tc.original) != len(assigned) {
+				t.Fatalf("returned map has length %d and not equal to number of participants: %d", len(assigned), len(tc.original))
+			}
+
+			m := make(map[string]struct{}, len(tc.shuffled))
 			for k, v := range assigned {
-				assert.NotEqual(t, k, v)
+				if k == v {
+					t.Errorf("%q is assigned to themselves", k)
+				}
+
+				if _, ok := m[v]; ok {
+					t.Errorf("value %q already in the map. Value is assigned to multiple keys", v)
+				}
+				m[v] = struct{}{}
 			}
 		})
 	}
