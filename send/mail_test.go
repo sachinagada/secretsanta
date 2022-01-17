@@ -1,4 +1,4 @@
-package email
+package send
 
 import (
 	"os"
@@ -34,7 +34,7 @@ func TestSendMail(t *testing.T) {
 		Recipient: "Test Recipient",
 	}
 
-	sendErr := m.SendEmail([]Santa{s})
+	sendErr := m.Send([]Santa{s})
 	if sendErr != nil {
 		t.Fatalf("unexpected error sending mail: %s", sendErr)
 	}

@@ -1,4 +1,4 @@
-package email
+package send
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ type Config struct {
 	Username string
 	// Password is the password for the email. Note that if your account uses
 	// 2FA, another password has to be generated to give the application access
-	// to the account and send emails. More information can be found here for
+	// to the account and send emails. More information can be found here for a
 	// gmail account: https://support.google.com/mail/?p=InvalidSecondFactor
 	Password string
 	SMTPHost string
@@ -44,7 +44,7 @@ type Mail struct {
 func NewMail(c *Config) (*Mail, error) {
 	auth := smtp.PlainAuth("", c.Username, c.Password, c.SMTPHost)
 
-	tmpl, parseErr := template.ParseFiles("./message.html")
+	tmpl, parseErr := template.ParseFiles("./mail_template.html")
 	if parseErr != nil {
 		return nil, fmt.Errorf("error parsing message template: %w", parseErr)
 	}
@@ -86,8 +86,8 @@ func (e ErrSend) Error() string {
 	return fmt.Sprintf("error sending mail to %q at %q address for %q recipient: %s", e.santa.Name, e.santa.Addr, e.santa.Recipient, e.sendErr)
 }
 
-// SendEmail sends the email to the Santas with name of their recipient.
-func (m *Mail) SendEmail(santas []Santa) error {
+// Send sends the email to the Santas with name of their recipient.
+func (m *Mail) Send(santas []Santa) error {
 
 	var sendErrs []ErrSend
 
