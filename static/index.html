@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script type="text/javascript" src="repeatable.js"></script>
+    </head>
+
+    <form id="myForm" name= "myForm" method="POST">
+        <div class='repeater'>
+          <section class='repeatable'>
+            <h2>Person 1</h2>
+            <div class='half-holder clearfix'>
+              <label class='half'>
+                First Name:
+                <input class='textbox' data-structure='first_name_' id='first_name' maxlength='255' name='first_name' placeholder='John' required='required' type='text'>
+              </label>
+              <label class='half'>
+                Last Name:
+                <input class='textbox' data-structure='last_name_' id='last_name' maxlength='255' name='last_name' placeholder='Smith' required='required' type='text'>
+              </label>
+            </div>
+            <div class='half-holder clearfix'>
+              <label>
+                E-Mail:
+                <input class='textbox' data-structure='email_' id='email' maxlength='255' name='email' placeholder='name@email.com' required='required' type='email'>
+              </label>
+            </div>
+          </section>
+          <section class='repeatable'>
+            <h2>Person 2</h2>
+            <div class='half-holder clearfix'>
+              <label class='half'>
+                First Name:
+                <input class='textbox' data-structure='first_name_' id='first_name' maxlength='255' name='first_name' placeholder='John' required='required' type='text'>
+              </label>
+              <label class='half'>
+                Last Name:
+                <input class='textbox' data-structure='last_name_' id='last_name' maxlength='255' name='last_name' placeholder='Smith' required='required' type='text'>
+              </label>
+            </div>
+            <div class='half-holder clearfix'>
+              <label>
+                E-Mail:
+                <input class='textbox' data-structure='email_' id='email' maxlength='255' name='email' placeholder='name@email.com' required='required' type='email'>
+              </label>
+            </div>
+          </section>
+          <section class='repeatable'>
+            <h2>Person 3</h2>
+            <div class='half-holder clearfix'>
+              <label class='half'>
+                First Name:
+                <input class='textbox' data-structure='first_name_' id='first_name' maxlength='255' name='first_name' placeholder='John' required='required' type='text'>
+              </label>
+              <label class='half'>
+                Last Name:
+                <input class='textbox' data-structure='last_name_' id='last_name' maxlength='255' name='last_name' placeholder='Smith' required='required' type='text'>
+              </label>
+            </div>
+            <div class='half-holder clearfix'>
+              <label>
+                E-Mail:
+                <input class='textbox' data-structure='email_' id='email' maxlength='255' name='email' placeholder='name@email.com' required='required' type='email'>
+              </label>
+            </div>
+          </section>
+          <input id='count' name='count' type='hidden' value='3'>
+        </div>
+        <input value="Submit" type="submit">
+      </form>
+</html>
