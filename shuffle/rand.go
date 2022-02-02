@@ -2,7 +2,7 @@ package shuffle
 
 import "math/rand"
 
-// Rand implements the Shuffle interface and uses the rand package to
+// Rand implements the shuffler interface and uses the rand package to
 // pseudo randomize the order in the array
 type Rand struct{}
 
