@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/sachinagada/secretsanta/send"
@@ -22,6 +23,19 @@ type fakeSender struct {
 
 // Send will return any errror for tests
 func (f *fakeSender) Send(santas []send.Santa) error {
+	for _, santa := range santas {
+		if strings.Contains(santa.Recipient, "@") {
+			return fmt.Errorf("error with recepient %q; expected name, got email address", santa.Recipient)
+		}
+
+		if strings.Contains(santa.Name, "@") {
+			return fmt.Errorf("error with santa name %q; expected name, got email address", santa.Name)
+		}
+
+		if !strings.Contains(santa.Addr, "@") {
+			return fmt.Errorf("error with santa address %q; invalid email address", santa.Addr)
+		}
+	}
 	return f.err
 }
 

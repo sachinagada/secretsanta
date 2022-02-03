@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"net"
 	"net/smtp"
+
+	"embed"
 )
 
 type Config struct {
@@ -40,11 +42,14 @@ type Mail struct {
 	tmpl     *template.Template // template of the email message that's sent to everyone
 }
 
+//go:embed mail_template.html
+var mailTmpl embed.FS
+
 // NewMail is the constructor for Mail
 func NewMail(c *Config) (*Mail, error) {
 	auth := smtp.PlainAuth("", c.Username, c.Password, c.SMTPHost)
 
-	tmpl, parseErr := template.ParseFiles("./mail_template.html")
+	tmpl, parseErr := template.ParseFS(mailTmpl, "mail_template.html")
 	if parseErr != nil {
 		return nil, fmt.Errorf("error parsing message template: %w", parseErr)
 	}
