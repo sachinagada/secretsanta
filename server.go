@@ -14,15 +14,15 @@ type sender interface {
 	Send(santas []send.Santa) error
 }
 
-// shuffler shuffles the slice of participants
-type shuffler interface {
+// Shuffler shuffles the slice of participants
+type Shuffler interface {
 	Shuffle([]string)
 }
 
 // server is a handler that will receive the list of participants and assign
 // secret santas
 type server struct {
-	shuf   shuffler
+	shuf   Shuffler
 	sender sender
 }
 
@@ -35,7 +35,7 @@ type participant struct {
 // key is the email and the value is the name of the participant
 type participantMap map[string]string
 
-func NewServer(shuf shuffler, sender sender) *server {
+func NewServer(shuf Shuffler, sender sender) *server {
 	return &server{
 		shuf:   shuf,
 		sender: sender,
@@ -99,10 +99,11 @@ func (s *server) inform(ps participantMap, assigned map[string]string) error {
 	santas := make([]send.Santa, 0, len(ps))
 	for address, name := range ps {
 		recepient := assigned[address]
+		recepientName := ps[recepient]
 		santa := send.Santa{
 			Name:      name,
 			Addr:      address,
-			Recipient: recepient,
+			Recipient: recepientName,
 		}
 		santas = append(santas, santa)
 	}
@@ -112,7 +113,7 @@ func (s *server) inform(ps participantMap, assigned map[string]string) error {
 
 // pickSecretSanta takes a list of emails and returns a map where the key is
 // the secret santa and the value is the person receiving the gift
-func pickSecretSanta(emails []string, s shuffler) map[string]string {
+func pickSecretSanta(emails []string, s Shuffler) map[string]string {
 	if len(emails) < 3 {
 		panic(fmt.Sprintf("received %d participants; cannot have fewer than 3 participants", len(emails)))
 	}
