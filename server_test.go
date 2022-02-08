@@ -2,6 +2,7 @@ package secretsanta
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,7 +23,7 @@ type fakeSender struct {
 }
 
 // Send will return any errror for tests
-func (f *fakeSender) Send(santas []send.Santa) error {
+func (f *fakeSender) Send(ctx context.Context, santas []send.Santa) error {
 	for _, santa := range santas {
 		if strings.Contains(santa.Recipient, "@") {
 			return fmt.Errorf("error with recepient %q; expected name, got email address", santa.Recipient)
