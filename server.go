@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/sachinagada/secretsanta/send"
+	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/trace"
 )
@@ -39,26 +41,42 @@ type participant struct {
 // key is the email and the value is the name of the participant
 type participantMap map[string]string
 
-func NewServer(shuf Shuffler, sender sender) *server {
-	return &server{
+func NewServer(shuf Shuffler, sender sender, port string) *http.Server {
+	ss := server{
 		shuf:   shuf,
 		sender: sender,
 	}
-}
 
-func addresses(ps participantMap) []string {
-	addresses := make([]string, 0, len(ps))
-	for address := range ps {
-		addresses = append(addresses, address)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/santa", ss.pickSanta)
+	mux.HandleFunc("/health", ss.healthCheck)
+	mux.Handle("/", http.FileServer(http.Dir("./static")))
+
+	httpSvr := http.Server{
+		Addr: net.JoinHostPort("", port),
+		Handler: &ochttp.Handler{
+			Handler:          mux,
+			IsPublicEndpoint: true,
+			IsHealthEndpoint: func(r *http.Request) bool {
+				fmt.Println("r.URL.Path", r.URL.Path)
+				return strings.Contains(r.URL.Path, "/health")
+			},
+		},
 	}
 
-	return addresses
+	return &httpSvr
+}
+
+// healthCheck always returns 200 status. Being able to hit the health check
+// endpoint indicates that the server is up and running
+func (s *server) healthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 // ServeHTTP handles the requests from the form and assigns the secret santa to
 // each participant. Each participant will receive communication regarding who
 // they are assigned.
-func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s *server) pickSanta(w http.ResponseWriter, r *http.Request) {
 	b, readErr := io.ReadAll(r.Body)
 	if readErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -117,6 +135,15 @@ func (s *server) inform(ctx context.Context, ps participantMap, assigned map[str
 	}
 
 	return s.sender.Send(ctx, santas)
+}
+
+func addresses(ps participantMap) []string {
+	addresses := make([]string, 0, len(ps))
+	for address := range ps {
+		addresses = append(addresses, address)
+	}
+
+	return addresses
 }
 
 // pickSecretSanta takes a list of emails and returns a map where the key is

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,7 +14,6 @@ import (
 	"github.com/sachinagada/secretsanta/monitor"
 	"github.com/sachinagada/secretsanta/send"
 	"github.com/sachinagada/secretsanta/shuffle"
-	"go.opencensus.io/plugin/ochttp"
 
 	"github.com/vimeo/dials"
 	"github.com/vimeo/dials/env"
@@ -82,17 +80,7 @@ func main() {
 		}
 	}()
 
-	srv := secretsanta.NewServer(shuf, mail)
-	srvMux := http.NewServeMux()
-	srvMux.Handle("/santa", srv)
-	srvMux.Handle("/", http.FileServer(http.Dir("./static")))
-
-	server := http.Server{
-		Addr: net.JoinHostPort("", conf.Port),
-		Handler: &ochttp.Handler{
-			Handler: srvMux,
-		},
-	}
+	server := secretsanta.NewServer(shuf, mail, conf.Port)
 
 	go func() {
 		if srvErr := server.ListenAndServe(); !errors.Is(srvErr, http.ErrServerClosed) {

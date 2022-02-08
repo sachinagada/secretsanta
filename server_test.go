@@ -121,8 +121,11 @@ func TestServer(t *testing.T) {
 
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(b))
 			w := httptest.NewRecorder()
-			server := NewServer(&shuffler, tc.sender)
-			server.ServeHTTP(w, req)
+			svr := server{
+				shuf:   &shuffler,
+				sender: tc.sender,
+			}
+			svr.pickSanta(w, req)
 
 			resp := w.Result()
 			assert.Equal(t, tc.expStatus, resp.StatusCode)
