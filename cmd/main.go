@@ -2,18 +2,20 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/sachinagada/secretsanta"
+	"github.com/sachinagada/secretsanta/monitor"
 	"github.com/sachinagada/secretsanta/send"
 	"github.com/sachinagada/secretsanta/shuffle"
+	"go.opencensus.io/plugin/ochttp"
 
 	"github.com/vimeo/dials"
 	"github.com/vimeo/dials/env"
@@ -21,16 +23,20 @@ import (
 )
 
 type Config struct {
-	Port       int    `dialsdesc:"port where application should run"`
-	Shuffler   string `dialsdesc:"type of shuffler to shuffle the participants (rand)"`
-	MailConfig *send.Config
+	Port                string `dialsdesc:"port where application should run"`
+	Shuffler            string `dialsdesc:"type of shuffler to shuffle the participants (rand)"`
+	MailConfig          *send.Config
+	MetricsPort         string        `dialsdesc:"port for the metrics server"`
+	ShutdownGracePeriod time.Duration `dialsdesc:"amount of time to give servers to gracefully shutdown"`
 }
 
 func defaultConfig() *Config {
 	return &Config{
-		Port:       3000,
-		Shuffler:   "rand",
-		MailConfig: send.DefaultConfig(),
+		Port:                "3000",
+		MetricsPort:         "8080",
+		Shuffler:            "rand",
+		MailConfig:          send.DefaultConfig(),
+		ShutdownGracePeriod: 30 * time.Second,
 	}
 }
 
@@ -65,15 +71,31 @@ func main() {
 		log.Fatalf("error initializing mail: %s", mailErr)
 	}
 
+	monSvr, monErr := monitor.NewServer(conf.MetricsPort)
+	if monErr != nil {
+		log.Fatalf("error initializing monitoring server: %s", monErr)
+	}
+
+	go func() {
+		if monSrvErr := monSvr.ListenAndServe(); !errors.Is(monSrvErr, http.ErrServerClosed) {
+			log.Fatalf("unexpected error listening on server: %s", monSrvErr)
+		}
+	}()
+
 	srv := secretsanta.NewServer(shuf, mail)
-	http.Handle("/santa", srv)
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	srvMux := http.NewServeMux()
+	srvMux.Handle("/santa", srv)
+	srvMux.Handle("/", http.FileServer(http.Dir("./static")))
 
 	server := http.Server{
-		Addr: net.JoinHostPort("", strconv.Itoa(conf.Port)),
+		Addr: net.JoinHostPort("", conf.Port),
+		Handler: &ochttp.Handler{
+			Handler: srvMux,
+		},
 	}
+
 	go func() {
-		if srvErr := server.ListenAndServe(); srvErr != http.ErrServerClosed {
+		if srvErr := server.ListenAndServe(); !errors.Is(srvErr, http.ErrServerClosed) {
 			log.Fatalf("unexpected error listening on server: %s", srvErr)
 		}
 	}()
@@ -83,10 +105,19 @@ func main() {
 
 	log.Print("initializing shutdown")
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), conf.ShutdownGracePeriod)
 	defer cancel()
 
 	if shutErr := server.Shutdown(shutdownCtx); shutErr != nil {
-		log.Fatalf("error shutting down server: %s", shutErr)
+		log.Printf("error shutting down server: %s", shutErr)
+	}
+
+	// shutdown the metrics server last so it can be scraped one more time
+	// by prometheus
+	monitorSDCtx, monCancel := context.WithTimeout(context.Background(), conf.ShutdownGracePeriod)
+	defer monCancel()
+
+	if monShutErr := monSvr.Shutdown(monitorSDCtx); monShutErr != nil {
+		log.Printf("error shutting down monitoring server: %s", monShutErr)
 	}
 }

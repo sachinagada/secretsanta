@@ -2,12 +2,14 @@ package send
 
 import (
 	"bytes"
+	"context"
+	"embed"
 	"fmt"
 	"html/template"
 	"net"
 	"net/smtp"
 
-	"embed"
+	"go.opencensus.io/trace"
 )
 
 type Config struct {
@@ -92,11 +94,13 @@ func (e ErrSend) Error() string {
 }
 
 // Send sends the email to the Santas with name of their recipient.
-func (m *Mail) Send(santas []Santa) error {
-
+func (m *Mail) Send(ctx context.Context, santas []Santa) error {
 	var sendErrs []ErrSend
+	_, span := trace.StartSpan(ctx, "send_mail")
+	defer span.End()
 
 	for _, s := range santas {
+		span.Annotate(nil, s.Addr)
 		b, execErr := s.execute(m.tmpl)
 		if execErr != nil {
 			return fmt.Errorf("error executing template for %q Santa: %w", s.Name, execErr)

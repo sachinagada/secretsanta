@@ -1,17 +1,21 @@
 package secretsanta
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/sachinagada/secretsanta/send"
+	"go.opencensus.io/stats"
+	"go.opencensus.io/trace"
 )
 
 type sender interface {
-	Send(santas []send.Santa) error
+	Send(ctx context.Context, santas []send.Santa) error
 }
 
 // Shuffler shuffles the slice of participants
@@ -80,13 +84,17 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
+	stats.Record(ctx, MParticipants.M(int64(len(participants))))
 	addrs := addresses(partMap)
 
 	// assigned key is the secret santa and the value is person receiving the
 	// gift
-	assigned := pickSecretSanta(addrs, s.shuf)
+	assigned := pickSecretSanta(ctx, addrs, s.shuf)
 
-	if informErr := s.inform(partMap, assigned); informErr != nil {
+	startTime := time.Now()
+	defer stats.Record(ctx, MCommunicationLatency.M(time.Since(startTime).Milliseconds()))
+	if informErr := s.inform(ctx, partMap, assigned); informErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(informErr.Error()))
 		return
@@ -95,7 +103,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Santas have been chosen and informed. Happy Holidays!"))
 }
 
-func (s *server) inform(ps participantMap, assigned map[string]string) error {
+func (s *server) inform(ctx context.Context, ps participantMap, assigned map[string]string) error {
 	santas := make([]send.Santa, 0, len(ps))
 	for address, name := range ps {
 		recepient := assigned[address]
@@ -108,12 +116,15 @@ func (s *server) inform(ps participantMap, assigned map[string]string) error {
 		santas = append(santas, santa)
 	}
 
-	return s.sender.Send(santas)
+	return s.sender.Send(ctx, santas)
 }
 
 // pickSecretSanta takes a list of emails and returns a map where the key is
 // the secret santa and the value is the person receiving the gift
-func pickSecretSanta(emails []string, s Shuffler) map[string]string {
+func pickSecretSanta(ctx context.Context, emails []string, s Shuffler) map[string]string {
+	_, span := trace.StartSpan(ctx, "pick_secret_santa")
+	defer span.End()
+
 	if len(emails) < 3 {
 		panic(fmt.Sprintf("received %d participants; cannot have fewer than 3 participants", len(emails)))
 	}
