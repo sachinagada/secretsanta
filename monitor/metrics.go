@@ -9,7 +9,7 @@ import (
 	// pprof handlers will register with DefaultServeMux at start up
 	_ "net/http/pprof"
 
-	"github.com/sachinagada/secretsanta"
+	"github.com/sachinagada/secretsanta/pick"
 
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
@@ -51,7 +51,7 @@ func NewServer(port string) (http.Server, error) {
 }
 
 func register() error {
-	regErr := view.Register(secretsanta.ViewParticipants, secretsanta.ViewCommunicationLatency)
+	regErr := view.Register(pick.ViewParticipants, pick.ViewCommunicationLatency)
 	if regErr != nil {
 		return fmt.Errorf("error registering custom server views: %w", regErr)
 	}

@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sachinagada/secretsanta"
 	"github.com/sachinagada/secretsanta/monitor"
+	"github.com/sachinagada/secretsanta/pick"
 	"github.com/sachinagada/secretsanta/send"
 	"github.com/sachinagada/secretsanta/shuffle"
 
@@ -56,7 +56,7 @@ func main() {
 
 	conf := d.View().(*Config)
 
-	var shuf secretsanta.Shuffler
+	var shuf pick.Shuffler
 	switch conf.Shuffler {
 	case "rand":
 		shuf = &shuffle.Rand{}
@@ -80,7 +80,7 @@ func main() {
 		}
 	}()
 
-	server := secretsanta.NewServer(shuf, mail, conf.Port)
+	server := pick.NewServer(shuf, mail, conf.Port)
 
 	go func() {
 		if srvErr := server.ListenAndServe(); !errors.Is(srvErr, http.ErrServerClosed) {
