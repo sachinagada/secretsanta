@@ -1,4 +1,4 @@
-package secretsanta
+package pick
 
 import (
 	"go.opencensus.io/stats"
