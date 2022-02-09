@@ -100,7 +100,6 @@ func (m *Mail) Send(ctx context.Context, santas []Santa) error {
 	defer span.End()
 
 	for _, s := range santas {
-		span.Annotate(nil, s.Addr)
 		b, execErr := s.execute(m.tmpl)
 		if execErr != nil {
 			return fmt.Errorf("error executing template for %q Santa: %w", s.Name, execErr)
