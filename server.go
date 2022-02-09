@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/sachinagada/secretsanta/send"
+
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/trace"
@@ -58,7 +59,6 @@ func NewServer(shuf Shuffler, sender sender, port string) *http.Server {
 			Handler:          mux,
 			IsPublicEndpoint: true,
 			IsHealthEndpoint: func(r *http.Request) bool {
-				fmt.Println("r.URL.Path", r.URL.Path)
 				return strings.Contains(r.URL.Path, "/health")
 			},
 		},

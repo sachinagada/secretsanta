@@ -109,20 +109,22 @@ document.addEventListener("DOMContentLoaded", function(){
       participants.push(participant)
     }
 
-    console.log("Request successful!")
-
-    // TODO: return response from backend to front end
     $.ajax({
       type: "POST",
       url: "/santa",
       data: JSON.stringify(participants),
-      success: function(){},
-      dataType: "json",
-      contentType : "application/json"
+      success: function(data){
+        $('#response').html(data)
+        document.getElementById('myForm').remove()
+        document.body.style.backgroundColor = "#4a934a";
+      },
+      error: function(data){
+        $('#response').html(data.responseText)
+        document.body.style.backgroundColor = "#E57373";
+      },
+      dataType: "text",
+      contentType : "application/json",
     });
-
-    // clear the data after submitting
-    form.reset();
   }
 
   const form = document.querySelector('#myForm');

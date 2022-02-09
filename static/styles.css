@@ -116,3 +116,10 @@
     *zoom: 1;
   }
 
+  #response {
+    font-size: 30px;
+    color:white;
+    margin: 0 auto;
+    padding-bottom: 10px;
+    text-align: center;
+  }
