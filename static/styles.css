@@ -23,13 +23,13 @@
 
   .repeater {
     padding-bottom: 1rem;
-    border-bottom: 2px solid #c0c0c0;
+    border-bottom: 2px solid #e9a6a6;
     margin-bottom: 1rem;
   }
 
   .repeatable {
     margin-bottom: 1rem;
-    border: 2px solid #e1e1e1;
+    border: 2px solid #e9a6a6;
     padding: 1rem;
     background-color: #f7f7f7;
     -webkit-border-radius: 0.25rem;
@@ -39,12 +39,8 @@
 
   h2 {
     margin: 0 0 0.5rem 0;
-    border-bottom: 2px solid #c0c0c0;
-  }
-
-  .remove {
-    display: block;
-    float: right;
+    font-size: 20px;
+    color: #215f05;
   }
 
   .half-holder {
@@ -60,6 +56,7 @@
     float: left;
     width: 49%;
     margin-right: 2%;
+    color: #215f05;
   }
 
   .half:nth-child(even) {
@@ -67,7 +64,6 @@
   }
 
   input[type="text"],
-  input[type="tel"],
   input[type="email"],
   textarea {
     margin: 0;
@@ -84,24 +80,11 @@
     width: auto;
   }
 
-  input[type="radio"] {
-    width: auto;
-    margin-right: 0.5rem;
-  }
-
   textarea {
     resize: vertical;
     overflow-y: scroll;
   }
 
-  .add_btn {
-    display: block;
-    width: 50%;
-    text-align: center;
-    margin: 0 auto;
-  }
-
-  /* CLEARFIX */
   .clearfix:before,
   .clearfix:after {
     content: "";
