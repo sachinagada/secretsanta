@@ -2,6 +2,7 @@ package pick
 
 import (
 	"context"
+	"embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -42,6 +43,9 @@ type participant struct {
 // key is the email and the value is the name of the participant
 type participantMap map[string]string
 
+//go:embed static/*
+var static embed.FS
+
 func NewServer(shuf Shuffler, sender sender, port string) *http.Server {
 	ss := server{
 		shuf:   shuf,
@@ -51,7 +55,7 @@ func NewServer(shuf Shuffler, sender sender, port string) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/santa", ss.pickSanta)
 	mux.HandleFunc("/health", ss.healthCheck)
-	mux.Handle("/", http.FileServer(http.Dir("./static")))
+	mux.Handle("/", http.FileServer(http.FS(static)))
 
 	httpSvr := http.Server{
 		Addr: net.JoinHostPort("", port),
