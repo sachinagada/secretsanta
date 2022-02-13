@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: secretservice
+  labels:
+    app: secretsanta
+  namespace: secret-santa
+spec:
+  selector:
+    app: secretsanta
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: secretsanta
