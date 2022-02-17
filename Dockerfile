@@ -7,7 +7,7 @@ RUN apk add --update --no-cache ca-certificates shadow
 # doesn't exist
 RUN groupadd --gid 1000 build && useradd --uid 1000 --gid 1000 -d /home/app -m build
 USER build
-# go to the home directory of the user
+# set the working directory to be used for copying and and building the app
 WORKDIR /home/app
 ENV GOMODULE=on
 
