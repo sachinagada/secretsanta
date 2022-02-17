@@ -15,16 +15,16 @@ import (
 type Config struct {
 	// Username is the email address from which all the emails will be sent.
 	// eg: username@gmail.com
-	Username string
+	Username string `dialsdesc:"email address from which all the emaisl will be sent"`
 	// Password is the password for the email. Note that if your account uses
 	// 2FA, another password has to be generated to give the application access
 	// to the account and send emails. More information can be found here for a
 	// gmail account: https://support.google.com/mail/?p=InvalidSecondFactor
-	Password string
-	SMTPHost string
-	SMPTPort string
+	Password string `dialsdesc:"password for the email address that sends the emails"`
+	SMTPHost string `dialsdesc:"SMTP host correlating to the email address sending the emails"`
+	SMPTPort string `dialsdesc:"SMTP port correlating to the email address sending the emails"`
 	// Subject for the email messages
-	Subject string
+	Subject string `dialsdesc:"subject for the email address sent to the chosen santas"`
 }
 
 // DefaultConfig returns the default Config

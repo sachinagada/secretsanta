@@ -8,7 +8,8 @@ metadata:
 spec:
   selector:
     app: secretsanta
+  type: NodePort
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: secretsanta
+      port: 3000
+      targetPort: 3000

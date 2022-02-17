@@ -21,9 +21,9 @@ import (
 )
 
 type Config struct {
-	Port                string `dialsdesc:"port where application should run"`
-	Shuffler            string `dialsdesc:"type of shuffler to shuffle the participants (rand)"`
-	MailConfig          *send.Config
+	Port                string        `dialsdesc:"port where application should run"`
+	Shuffler            string        `dialsdesc:"type of shuffler to shuffle the participants (rand)"`
+	MailConfig          *send.Config  `dials:"mail"`
 	MetricsPort         string        `dialsdesc:"port for the metrics server"`
 	ShutdownGracePeriod time.Duration `dialsdesc:"amount of time to give servers to gracefully shutdown"`
 }
